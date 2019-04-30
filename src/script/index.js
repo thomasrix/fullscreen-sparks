@@ -1,7 +1,5 @@
-import Example from "./components/example";
+import Sparks from "./components/sparks";
 import '../styles/styles.scss';
-// import '../assets/**/*.*';
-// import '../styles/styles.scss';
 
 console.log('Hello again Parcels', process.env.DEBUGGING);
-let ex = new Example();
+let ex = new Sparks();

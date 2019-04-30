@@ -23,6 +23,12 @@ export function selectAll (s, e = document){
     // Shortcut to select dom elements
     return e.querySelectorAll(s);
 }
+export function linearInterpolate(norm, min, max){
+    return (max - min) * norm + min;
+}
+export function normalize(value, min, max){
+    return (value - min) / (max - min);
+}
 export function addNodeListForEach(nodelist){
     if(window.NodeList && !NodeList.prototype.forEach){
         nodelist.forEach = function(callback, thisArg) {
