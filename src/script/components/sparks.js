@@ -1,5 +1,5 @@
 'use strict';
-import {create, select} from '../utils/trix';
+import {create, select, throttleEvents} from '../utils/trix';
 import Spark from './spark/spark';
 
 // TODO: Make canvas fit window - include resize event to handle context size
@@ -7,10 +7,14 @@ import Spark from './spark/spark';
 
 export default class Sparks{
 	constructor(){
-		let canvas = create('canvas', select('[sparks-entry-point]'));
-		// console.log(document.body.getBoundingClientRect());
-		canvas.width = parent.innerWidth;
-		canvas.height = parent.innerHeight-40;
+
+		let entry = select('[sparks-entry-point]');
+		let container = create('div', entry, 'fullscreen-sparks-container');
+        
+        let canvas = create('canvas', container);
+		let bounds = container.getBoundingClientRect();
+		canvas.width = bounds.width;
+		canvas.height = bounds.height;
 
 		this.ctx = canvas.getContext('2d');
 
@@ -18,7 +22,16 @@ export default class Sparks{
 		this.sparks = [];
 
 		this.update();
-		this.canvas.addEventListener('click', this.spawn.bind(this));
+        this.canvas.addEventListener('click', this.spawn.bind(this));
+        
+        window.addEventListener('resize', throttleEvents(()=>{
+            let bounds = container.getBoundingClientRect();
+            canvas.width = bounds.width;
+            canvas.height = bounds.height;
+            this.sparks.forEach((el)=>{
+                el.setBoundaries(0, 0, this.canvas.width, this.canvas.height);
+            })
+        }, 200))
 
 		// this.ballImage = create('img');
 		// this.ballImage.src = 'images/ball.png';

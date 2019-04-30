@@ -14,7 +14,7 @@ export default class Spark extends Particle{
 		this.resistance = linearInterpolate(normalize(this.radius, 1, 5), .70, .50);
 		this.angle = new Vector(1, 0);
 		this.rotation = 0;
-		console.log('drag:', this.radius, this.resistance);
+		// console.log('drag:', this.radius, this.resistance);
 	}
 	setResistance(value){
 		this.resistance = value;

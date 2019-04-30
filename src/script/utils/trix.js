@@ -29,6 +29,15 @@ export function linearInterpolate(norm, min, max){
 export function normalize(value, min, max){
     return (value - min) / (max - min);
 }
+export function throttleEvents(listener, delay) {
+    var timeout;
+    var throttledListener = function(e) {
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(listener, delay, e);
+    }
+    return throttledListener;
+}
+
 export function addNodeListForEach(nodelist){
     if(window.NodeList && !NodeList.prototype.forEach){
         nodelist.forEach = function(callback, thisArg) {
