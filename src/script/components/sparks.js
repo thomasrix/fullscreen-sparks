@@ -2,7 +2,6 @@
 import {create, select, throttleEvents} from '../utils/trix';
 import Spark from './spark/spark';
 
-// TODO: Make canvas fit window - include resize event to handle context size
 // Try shadow effect on the balls
 
 export default class Sparks{
@@ -19,33 +18,77 @@ export default class Sparks{
 
         this.ctx = canvas.getContext('2d');
         this.dctx = displayCanvas.getContext('2d');
-        this.dctx.globalAlpha = 0.9;
+        // this.dctx.globalAlpha = 0.9;
 
 		this.canvas = canvas;
-		this.displayCanvas = displayCanvas;
-		this.sparks = [];
-
-		this.update();
-        this.canvas.addEventListener('click', this.spawn.bind(this));
+        this.displayCanvas = displayCanvas;
+        this.container = container;
+        // this.start();
+        console.log('sparks constructed');
+        window.FaqSparks = {
+            start:this.start.bind(this),
+            kill:this.end.bind(this)
+        }
+    }
+    start(){
+        console.log('start', this)
+        this.sparks = [];
+        this.container.style.display = 'block';
+        
+        this.canvas.addEventListener('click', this.end.bind(this));
         
         window.addEventListener('resize', throttleEvents(()=>{
-            let bounds = container.getBoundingClientRect();
-            canvas.width = displayCanvas.width = bounds.width;
-            canvas.height = displayCanvas.height = bounds.height;
+            let bounds = this.container.getBoundingClientRect();
+            this.canvas.width = this.displayCanvas.width = bounds.width;
+            this.canvas.height = this.displayCanvas.height = bounds.height;
             this.sparks.forEach((el)=>{
                 el.setBoundaries(0, 0, this.canvas.width, this.canvas.height);
             })
         }, 200))
+        
+        // this.ballImage = create('img');
+        // this.ballImage.src = '../assets/images/train.svg';
+        // this.shadowImage = create('img');
+        // this.shadowImage.src = 'images/shadow.png';
+        // this.spawn();
+        this.clearCanvas();
+        this.update();
+        this.timeout = setTimeout(this.launch.bind(this), 500);
 
-		// this.ballImage = create('img');
-		// this.ballImage.src = '../assets/images/train.svg';
-		// this.shadowImage = create('img');
-		// this.shadowImage.src = 'images/shadow.png';
-		// this.spawn();
+    }
+    end(){
+        console.log('end', FaqSparks);
+        clearTimeout(this.timeout);
+        cancelAnimationFrame(this.ticker);
+        this.clearCanvas();
+        this.container.style.display = 'none';
+        if(FaqSparks.hide !== undefined){
+            FaqSparks.hide();
+        }
+    }
+    launch(){
+        let e = {
+            clientX:Math.random() * this.canvas.width,
+            clientY:Math.random() * (this.canvas.height * .7)
+        }
+        this.spawn(e)
+        this.timeout = setTimeout(this.launch.bind(this), Math.random()*3000);
+    }
+    clearCanvas(){
+        let bounds = this.container.getBoundingClientRect();
+        this.canvas.width = this.displayCanvas.width = bounds.width;
+        this.canvas.height = this.displayCanvas.height = bounds.height;
+   
+    }
+    pickColor(){
+        let c = [5, 30, 90, 150, 180, 120, 105];
+        // console.log('random:', Math.round(Math.random() * c.length));
+        return c[Math.floor(Math.random() * c.length)];
 
-	}
+    }
 	spawn(ev){
-        console.log('spawn')
+        console.log('spawn', this);
+        // this.clearCanvas();
         // this.ctx.globalAlpha = 0.1;
         // this.ctx.drawImage(this.ballImage,100, 100);
 		let canvasPos = this.canvas.getBoundingClientRect();
@@ -53,15 +96,16 @@ export default class Sparks{
 		let canvasRatio = canvasPos.width / this.canvas.width;
 
 		let x = (mousePos.x - canvasPos.left) / canvasRatio,
-		y = (mousePos.y - canvasPos.top) / canvasRatio;
-
+        y = (mousePos.y - canvasPos.top) / canvasRatio,
+        clr = this.pickColor();
+        
 		for(let b = 0 ; b < 100 ; b++){
 			let speed = Math.random() * 7 + 1,
 			direction = Math.random() * Math.PI * 2,
 			gravity = 0.2,
 			radius = parseInt(Math.random() * 4) + 1;
 			let spark = new Spark(x, y, speed, direction, gravity, radius);
-			spark.setColor(parseInt(Math.random() * 15 + 30), Math.random() * 10 + 80);
+			spark.setColor(parseInt(Math.random() * 15 + clr), Math.random() * 10 + 80);
 
 			spark.setBoundaries(0, 0, this.canvas.width, this.canvas.height);
 			this.sparks.push(spark);
@@ -96,21 +140,30 @@ export default class Sparks{
 	update(){
 		// console.log('update', this.canvas.width, this.displayCanvas.width);
         //this.ctx.fillStyle='rgba(0, 0, 0, 0.1)';
-        this.dctx.globalAlpha = 0.9;
-        this.dctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.dctx.drawImage(this.canvas, 0, 0);
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.drawImage(this.displayCanvas, 0, 0);
 
-		for(let i = 0, l = this.sparks.length ; i < l ; i++){
-			let spark = this.sparks[i];
-			if(spark.alive){
-				spark.update();
-				spark.checkPosition();
-			 	//this.drawImageBall(spark);
-			 	this.drawColorBall(spark);
-			}
-		}
+        // this.dctx.globalAlpha = 1;
+        // this.displayCanvas.width = this.displayCanvas.width;
+        // this.clearCanvas();
+        this.dctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.dctx.globalAlpha = 0.8;
+        this.dctx.drawImage(this.canvas, 0, 0);
+        // this.ctx.globalAlpha = 0.8;
+        
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // this.canvas.width = this.canvas.width;
+        // this.ctx.globalAlpha = 0.95;
+        this.ctx.drawImage(this.displayCanvas, 0, 0);
+        // this.ctx.globalAlpha = 1;
+        for(let i = 0, l = this.sparks.length ; i < l ; i++){
+            let spark = this.sparks[i];
+            if(spark.alive){
+                spark.update();
+                spark.checkPosition();
+                    //this.drawImageBall(spark);
+                    this.drawColorBall(spark);
+            }
+        }
+
 		this.ticker = requestAnimationFrame(this.update.bind(this));	
 	}
 }
