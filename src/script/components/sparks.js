@@ -67,9 +67,10 @@ export default class Sparks{
         }
     }
     launch(){
+        let margin = this.canvas.width * 0.1;
         let e = {
-            clientX:Math.random() * this.canvas.width,
-            clientY:Math.random() * (this.canvas.height * .7)
+            clientX:(Math.random() * (this.canvas.width - (margin*2))) + margin,
+            clientY:(Math.random() * (this.canvas.height * .6)) + margin
         }
         this.spawn(e)
         this.timeout = setTimeout(this.launch.bind(this), Math.random()*3000);
