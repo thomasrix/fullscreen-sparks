@@ -21,7 +21,7 @@
     "cssnano": "^4.1.0",
     "fs-extra": "^7.0.0",
     "glob-watcher": "^5.0.1",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "parcel-bundler": "^1.12.3"
   },
   "dependencies": {}
